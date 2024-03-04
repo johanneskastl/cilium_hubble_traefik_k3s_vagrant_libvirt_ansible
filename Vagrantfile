@@ -16,6 +16,9 @@ Vagrant.configure("2") do |config|
     # set the hostname
     node.vm.hostname = "k3s1"
 
+    # disable the shared folder
+    node.vm.synced_folder ".", "/vagrant", disabled: true
+
     node.vm.provision "ansible" do |ansible|
       ansible.compatibility_mode = "2.0"
       ansible.groups = {
