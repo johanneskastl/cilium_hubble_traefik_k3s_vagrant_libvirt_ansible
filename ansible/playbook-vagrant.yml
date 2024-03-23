@@ -8,3 +8,6 @@
 
 - name: 'Run playbook-cilium.yml'
   ansible.builtin.import_playbook: playbook-cilium.yml
+
+- name: 'Run playbook-nginx.yml '
+  ansible.builtin.import_playbook: playbook-nginx.yml
