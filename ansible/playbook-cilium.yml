@@ -1,0 +1,34 @@
+---
+
+- name: 'Gather facts'
+  hosts: 'all'
+  gather_facts: true
+
+- name: 'Install Cilium'
+  hosts: 'k3s1'
+  gather_facts: false
+  become: false
+  module_defaults:
+    kubernetes.core.helm:
+      kubeconfig: './k3s-kubeconfig'
+    kubernetes.core.k8s:
+      kubeconfig: './k3s-kubeconfig'
+    kubernetes.core.k8s_info:
+      kubeconfig: './k3s-kubeconfig'
+
+  tasks:
+
+    - name: 'Install Cilium via helm chart'
+      # running this from vagrant fails, if we target localhost directly
+      delegate_to: 'localhost'
+      kubernetes.core.helm:
+        chart_repo_url: 'https://helm.cilium.io/'
+        release_name: 'cilium'
+        chart_ref: 'cilium'
+        release_namespace: 'kube-system'
+        values:
+          ipam:
+            operator:
+              clusterPoolIPv4PodCIDRList: "10.42.0.0/16"
+          operator:
+            replicas: 1
