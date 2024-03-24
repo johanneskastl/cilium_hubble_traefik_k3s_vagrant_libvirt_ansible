@@ -39,7 +39,9 @@
       until: "result.status == 200"
       retries: 31
       delay: 10
+      delegate_to: 'localhost'
 
     - name: 'Output URL'
       ansible.builtin.debug:
         msg: "You can access the Nginx deployment here: http://nginx.{{ hostvars[inventory_hostname]['ansible_default_ipv4']['address'] }}.sslip.io"
+      delegate_to: 'localhost'
