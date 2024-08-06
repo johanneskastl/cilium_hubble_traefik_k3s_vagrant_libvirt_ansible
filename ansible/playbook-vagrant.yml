@@ -8,3 +8,6 @@
 
 - name: 'Run playbook-nginx.yml '
   ansible.builtin.import_playbook: playbook-nginx.yml
+
+- name: 'Run playbook-hubble_ui.yml '
+  ansible.builtin.import_playbook: playbook-hubble_ui.yml
