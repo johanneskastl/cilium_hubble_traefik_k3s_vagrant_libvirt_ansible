@@ -27,6 +27,11 @@ Vagrant.configure("2") do |config|
       ansible.playbook = "ansible/playbook-vagrant.yml"
     end # node.vm.provision
 
+    node.trigger.after :destroy do |trigger|
+      trigger.warn = "Removing ansible/k3s-kubeconfig"
+      trigger.run = {inline: "rm -vf ansible/k3s-kubeconfig"}
+    end # node.trigger.after
+
   end # config.vm.define servers
 
 end # Vagrant.configure
