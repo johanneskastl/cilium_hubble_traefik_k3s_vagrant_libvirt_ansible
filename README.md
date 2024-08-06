@@ -20,7 +20,8 @@ Please be aware, that this might break the Ansible provisioning.
 1. Run `vagrant up`
 1. Run `kubectl --kubeconfig ansible/k3s-kubeconfig get nodes` and you should
    see your server.
-1. Open the URL that Ansible printed in the end, it looks something like this:
+1. Open the Nginx URL that Ansible shows near the end of the provisioning, it
+   looks something like this:
 
    ```
    http://nginx.192.0.2.13.sslip.io
@@ -28,7 +29,20 @@ Please be aware, that this might break the Ansible provisioning.
 
    (where `192.0.2.13` is the VM's IP address)
 
-1. You should see the Nginx welcome page. Party!
+1. You should see the Nginx welcome page.
+1. Open the Hubble URL that Ansible printed out at the end of the provisioning.
+   It looks something like this:
+
+   ```
+   http://hubble.192.0.2.13.sslip.io
+   ```
+
+   (where `192.0.2.13` is the VM's IP address)
+1. Open the `default` namespace and you should see the traffic graph with
+   Traefik (in `kube-system` namespace) sending traffic to the Nginx service.
+1. Hit the Nginx URL a few times and you should see your requests show up in the
+   bottom of the Hubble UI.
+1. Party!
 
 ## Cleaning up
 
