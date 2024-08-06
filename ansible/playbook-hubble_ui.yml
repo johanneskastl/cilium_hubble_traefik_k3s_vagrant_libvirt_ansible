@@ -1,0 +1,55 @@
+---
+
+- name: 'Gather facts'
+  hosts: 'all'
+  gather_facts: true
+
+- name: 'Hubble UI'
+  hosts: 'k3s1'
+  gather_facts: false
+  become: false
+  module_defaults:
+    kubernetes.core.helm:
+      kubeconfig: './k3s-kubeconfig'
+    kubernetes.core.k8s:
+      kubeconfig: './k3s-kubeconfig'
+    kubernetes.core.k8s_info:
+      kubeconfig: './k3s-kubeconfig'
+
+  tasks:
+
+    - name: 'Install a ingressroute for the Hubble UI'
+      # running this from vagrant fails, if we target localhost directly
+      delegate_to: 'localhost'
+      kubernetes.core.k8s:
+        state: 'present'
+        resource_definition: |
+          apiVersion: traefik.io/v1alpha1
+          kind: IngressRoute
+          metadata:
+            name: hubble-ui
+            namespace: kube-system
+          spec:
+            entryPoints:
+              - web
+            routes:
+              - kind: Rule
+                match: Host("hubble.{{ hostvars[inventory_hostname]['ansible_default_ipv4']['address'] }}.sslip.io")
+                services:
+                  - kind: Service
+                    name: hubble-ui
+                    port: 80
+
+    - name: 'Wait for the Hubble URL to be available'
+      delegate_to: 'localhost'
+      ansible.builtin.uri:
+        url: "http://hubble.{{ hostvars[inventory_hostname]['ansible_default_ipv4']['address'] }}.sslip.io"
+      register: result
+      until: "result.status == 200"
+      retries: 31
+      delay: 10
+
+    - name: 'Output URL'
+      delegate_to: 'localhost'
+      ansible.builtin.debug:
+        msg: "You can access the Hubble UI here: http://hubble.{{ hostvars[inventory_hostname]['ansible_default_ipv4']['address'] }}.sslip.io"
