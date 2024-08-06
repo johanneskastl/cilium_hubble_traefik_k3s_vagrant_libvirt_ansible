@@ -30,21 +30,6 @@ Please be aware, that this might break the Ansible provisioning.
 
 1. You should see the Nginx welcome page. Party!
 
-## Disabling the Ansible provisioning
-
-In case you do not want Ansible to install k3s (because you want to install it
-yourself), just comment out the following lines in the `Vagrantfile`:
-
-```
-    node.vm.provision "ansible" do |ansible|
-      ansible.compatibility_mode = "2.0"
-      ansible.groups = {
-        "k3s"  => [ "k3s1" ]
-      }
-      ansible.playbook = "ansible/playbook-vagrant.yml"
-    end # node.vm.provision
-```
-
 ## Cleaning up
 
 When tearing down the machine, the kubeconfig and token files that was download
