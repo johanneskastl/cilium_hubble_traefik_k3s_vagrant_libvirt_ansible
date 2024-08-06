@@ -57,8 +57,12 @@
         api_version: v1
         kind: Pod
         namespace: kube-system
+        # there are two Job pods for installing Traefik via helm,
+        # that are not ready, but '0/1 Completed'
+        # we exclude them using the field_selectors
+        field_selectors:
+          - status.phase=Running
       register: pod_list_ready
-      failed_when: false
       # pods with two containers show up as [true, true]
       until:
         '
