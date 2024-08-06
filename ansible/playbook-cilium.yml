@@ -32,6 +32,15 @@
               clusterPoolIPv4PodCIDRList: "10.42.0.0/16"
           operator:
             replicas: 1
+          hubble:
+            relay:
+              enabled: true
+            ui:
+              enabled: true
+              frontend:
+                server:
+                  ipv6:
+                    enabled: false
 
     - name: 'Wait until all pods are running'
       delegate_to: localhost
