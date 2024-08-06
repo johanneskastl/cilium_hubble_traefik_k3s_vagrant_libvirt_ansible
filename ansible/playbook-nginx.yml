@@ -22,8 +22,8 @@
       # running this from vagrant fails, if we target localhost directly
       delegate_to: 'localhost'
       kubernetes.core.helm:
-        release_name: 'nginx'
         chart_ref: 'oci://registry-1.docker.io/bitnamicharts/nginx'
+        release_name: 'nginx'
         release_namespace: 'default'
         values:
           service:
@@ -31,6 +31,53 @@
           ingress:
             enabled: true
             hostname: "nginx.{{ hostvars[inventory_hostname]['ansible_default_ipv4']['address'] }}.sslip.io"
+
+    - name: 'Install Nginx Gateway'
+      # running this from vagrant fails, if we target localhost directly
+      delegate_to: 'localhost'
+      kubernetes.core.k8s:
+        state: 'present'
+        resource_definition: |
+          apiVersion: gateway.networking.k8s.io/v1
+          kind: Gateway
+          metadata:
+            name: nginx-gateway
+            namespace: default
+          spec:
+            gatewayClassName: cilium
+            listeners:
+            - protocol: HTTP
+              port: 80
+              name: http
+              allowedRoutes:
+                namespaces:
+                  from: Same
+
+    - name: 'Install Nginx HTTPRoute'
+      # running this from vagrant fails, if we target localhost directly
+      delegate_to: 'localhost'
+      kubernetes.core.k8s:
+        state: 'present'
+        resource_definition: |
+          apiVersion: gateway.networking.k8s.io/v1
+          kind: HTTPRoute
+          metadata:
+            name: nginx-httproute
+            namespace: default
+          spec:
+            parentRefs:
+            - name: nginx-gateway
+              namespace: default
+            hostnames:
+            - "nginx.{{ hostvars[inventory_hostname]['ansible_default_ipv4']['address'] }}.sslip.io"
+            rules:
+            - matches:
+              - path:
+                  type: PathPrefix
+                  value: /
+              backendRefs:
+              - name: nginx
+                port: 80
 
     - name: 'Wait until all pods in the default namespace are running'
       delegate_to: localhost
@@ -65,15 +112,15 @@
       delay: 10
 
     - name: 'Wait for URL to be available'
+      delegate_to: 'localhost'
       ansible.builtin.uri:
         url: "http://nginx.{{ hostvars[inventory_hostname]['ansible_default_ipv4']['address'] }}.sslip.io"
       register: result
       until: "result.status == 200"
       retries: 31
       delay: 10
-      delegate_to: 'localhost'
 
     - name: 'Output URL'
+      delegate_to: 'localhost'
       ansible.builtin.debug:
         msg: "You can access the Nginx deployment here: http://nginx.{{ hostvars[inventory_hostname]['ansible_default_ipv4']['address'] }}.sslip.io"
-      delegate_to: 'localhost'
