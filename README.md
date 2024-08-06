@@ -4,7 +4,7 @@ Vagrant-libvirt setup that creates a VM with [k3s](https://k3s.io) and
 [Cilium](https://cilium.io) as the CNI. Traefik is still being used as the
 default ingress controller, as in standard k3s.
 
-Default OS is openSUSE Leap 15.5, but that can be changed in the Vagrantfile.
+Default OS is openSUSE Leap 15.6, but that can be changed in the Vagrantfile.
 Please be aware, that this might break the Ansible provisioning.
 
 ## Vagrant
